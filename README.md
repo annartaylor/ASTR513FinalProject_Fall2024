@@ -1,5 +1,4 @@
-# ASTR513 FinalProject Fall 2024
-## Jingyu Wang, Chaucer Langbert, and Anna Taylor
+# ASTR513 FinalProject Fall 2024 - Jingyu Wang, Chaucer Langbert, and Anna Taylor
 
 Chemical Equilibrium Perturbation Model using ODE Solver 
 
@@ -8,4 +7,5 @@ Starting with a chemical equilibrium model, we can introduce perturbations into 
 Test cases 
 1. Influx of water in the upper atmosphere from moons
 2. Sudden temperature increase due to solar flare
+3. Sudden increase in ammonium (NH$_4$), hydrosulfide (SH), and acetylene (HCCH) due to Great Red Spot storm 
 
