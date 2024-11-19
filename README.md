@@ -7,5 +7,5 @@ Starting with a chemical equilibrium model, we can introduce perturbations into 
 Test cases 
 1. Influx of water in the upper atmosphere from moons
 2. Sudden temperature increase due to solar flare
-3. Sudden increase in ammonium (NH$$_4$$), hydrosulfide (SH), and acetylene (HCCH) due to Great Red Spot storm 
+3. Sudden increase in ammonium (NH4), hydrosulfide (SH), and acetylene (HCCH) due to Great Red Spot storm 
 
