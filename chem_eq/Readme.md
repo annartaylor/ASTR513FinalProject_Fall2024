@@ -1,7 +1,7 @@
--"Chem_eq.py": code for finding chemical equilibrium for given boundary conditions
--"main.py": couple the chemical equilibrium finder with ODE solver to simulate the evolution of the atmosphere
--"Inputs.yaml": input data for all species
--"SpecieName.xlsx": species number used in code
--"Reactions.dat": all reactions considered in the atmosphere
--"stoichiometric_coefficients.dat": stoichiometric coefficients for each species
+-"Chem_eq.py": code for finding chemical equilibrium for given boundary conditions\
+-"main.py": couple the chemical equilibrium finder with ODE solver to simulate the evolution of the atmosphere\
+-"Inputs.yaml": input data for all species\
+-"SpecieName.xlsx": species number used in code\
+-"Reactions.dat": all reactions considered in the atmosphere\
+-"stoichiometric_coefficients.dat": stoichiometric coefficients for each species\
 -"PT.dat": P-T profile for Venusian atmosphere for 0-48km (below cloud)
