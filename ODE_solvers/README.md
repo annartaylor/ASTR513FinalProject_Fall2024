@@ -1,2 +1,3 @@
 -"ODE_solver.ipynb": simle second-order ODE solver using the Runge-Kutta method with a fixed timestep\
--"RKF12.ipynb": Runge-Kutta-Fehlberg method (RKF1/2) for solving ODE y' = f(t, y) with adaptive step size
+-"RKF12.ipynb": Runge-Kutta-Fehlberg method (RKF1/2) for solving ODE y' = f(t, y) with adaptive step size\
+-"Venus_ODE_solve.ipynb": Energy balance and atmospheric temperature gradient ODE solve for Venus
