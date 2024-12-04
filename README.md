@@ -1,11 +1,6 @@
 # ASTR513 FinalProject Fall 2024 - Jingyu Wang, Chaucer Langbert, and Anna Taylor
 
-Chemical Equilibrium Perturbation Model using ODE Solver 
+Chemical Equilibrium Perturbation Model using ODE Solver: Application to Venus
 
-Starting with a chemical equilibrium model, we can introduce perturbations into the system, representing changes in solar radiation, impact events, or volcanic activity, and use the ODE solver to track how these perturbations affect the chemical makeup of the atmosphere over time. To do this we can introduce sudden or gradual changes in parameters or boundary conditions (e.g., a sudden increase in temperature or influx of new chemical species). For our model of Jupiter, we will introduce new boundary conditions and solve until we reach equilibrium and see how the model changes. 
-
-Test cases 
-1. Influx of water in the upper atmosphere from moons
-2. Sudden temperature increase due to solar flare
-3. Sudden increase in ammonium (NH4), hydrosulfide (SH), and acetylene (HCCH) due to Great Red Spot storm 
+We first calculate the composition of Venus using a chemical equilibrium model. By minimizing the Gibbs free energy of the system using the gradient descent method we can calculate the chemical equilibrium composition of the atmosphere. Then we develop an ODE solver to time evolve the atmosphere given some change in conditions. We test this by seeing how the atmosphere would evolve if the Solar flux increased over time, which could be true during an active period or a solar flare.  
 
