@@ -28,7 +28,8 @@ reaction_list = np.genfromtxt("Reactions.dat", dtype="int")
 #print(reaction_list)
 
 # loop through all reactions, if all reactants exist, append both reactants and products to a new list
-species = np.array([2,3,4,7,9,10,11,13,14,18,27]) # species number, not index
+# major species: CO2, CO, SO2, N2
+species = np.array([10,11,18,13]) # species number, not index
 species_append = species
 
 for i in range(0, len(reaction_list)):
@@ -40,6 +41,7 @@ for i in range(0, len(reaction_list)):
             species_append = np.append(species_append,reaction_list[i][-2:])
 #print(species)
 species_all = np.array(list(set(species_append[np.where(species_append>0)])))
+species_all = np.array([10,11,18,13])
 print(species_all)
 
 # read in P-T profile
@@ -48,8 +50,8 @@ height = data[:,0] # altitude in km
 delta_z = (height[1] - height[0])*1.0E3 # vertical resolution in m
 P = 10**data[:,1] # pressure in Pa
 T = data[:,2] # temperature in K
-print('T:',T)
-print('P:',P)
+#print('T:',T)
+#print('P:',P)
 
 # compute delta_f_G
 # read in thermo data from inputs.yaml file
@@ -110,11 +112,14 @@ def compute_delta_f_S_m(T, shomate, shomate_ref, mu):
     #print("delta_f_S_m:", delta_f_S_m)
     return delta_f_S_m
 
-### compute delta_f_G_m
-### delta_f_G_m = delta_f_H_m - T*delta_f_S_m*1E-3 + R_U*T*ln(mr*P/P0)
-def compute_delta_f_G_m(T, P, mr, delta_f_H_m, delta_f_S_m):
-    delta_f_G_m = delta_f_H_m*1.0E3  - T*delta_f_S_m + R_U*T*np.log(mr*P/P_not)
-    return delta_f_G_m
+### compute sum of delta_f_G_m in J mol^-1 at each altitude
+### delta_f_G_m = delta_f_H_m*1E3 - T*delta_f_S_m + R_U*T*ln(mr*P/P0)
+def sum_compute_delta_f_G_m(T, P, mr, delta_f_H_m, delta_f_S_m):
+    sum = 0
+    for i in range(len(mr)):
+        delta_f_G_m = delta_f_H_m[i]*1.E3 - T*delta_f_S_m[i]+ R_U*T*np.log(mr[i]*P/P_not)
+        sum += mr[i]*delta_f_G_m
+    return sum
 
 ### compute delta_f_H_m and delta_f_S_m for each species at each altitude
 delta_f_H_m_0 = np.zeros(len(species_all))
@@ -129,8 +134,8 @@ for i in range(0,len(species_all)):
     delta_f_H_m_0[i] = species_data['species'][species_all[i]-1]["thermo"]["ref_delta_H"]
     delta_f_H_m[:,i] = compute_delta_f_H_m(delta_f_H_m_0[i], T, shomate, shomate_ref, mu[i])
     delta_f_S_m[:,i] = compute_delta_f_S_m(T, shomate, shomate_ref, mu[i])
-print("delta_f_H_m",delta_f_H_m[0,7])
-print("delta_f_S_m",delta_f_S_m[0,7])
+print("delta_f_H_m",delta_f_H_m[0,:])
+print("delta_f_S_m",delta_f_S_m[0,:])
 #delta_f_G_m = compute_delta_f_G_m(T, P, mr, delta_f_H_m, delta_f_S_m)
 
 # minimize delta_f_G to get mixing ratios of all speceis
@@ -163,10 +168,10 @@ for i in range(0, len(species_all)):
     if species_all[i] in species:
         mr_eq_ini[:,i] = np.ones_like(height)*mr_ini[np.where(species == species_all[i])[0][0]]
 mr_eq_ini += 1.0e-20 #add on 1.0e-20 to avoid log(0) in the derivative
-print(mr_eq_ini[0,:])
+#print(mr_eq_ini[0,:])
 
-print("sum of the number density of each element:", sum_mr_element(species_all, mr_eq_ini, element))
-print("sum of the number density of each element -1e-14:", sum_mr_element(species_all, mr_eq_ini-1.0e-14, element))
+#print("sum of the number density of each element:", sum_mr_element(species_all, mr_eq_ini, element))
+#print("sum of the number density of each element -1e-14:", sum_mr_element(species_all, mr_eq_ini-1.0e-14, element))
 
 #print("composition of a species",list(species_data['species'][species_all[0]]['composition'].values()))
 
@@ -241,7 +246,26 @@ def gradient_descent(P, T, mr_eq_ini, delta_f_H_m, delta_f_S_m):
     return mr
 
 # use gradient descent to find the chemical equilibrium
-mr_eq = gradient_descent(P, T, mr_eq_ini, delta_f_H_m, delta_f_S_m)
+#mr_eq = gradient_descent(P, T, mr_eq_ini, delta_f_H_m, delta_f_S_m)
+#print("mr eq:", mr_eq[0,:])
+
+# minimize sum(delta_f_G_m) using grid search
+mr_eq = np.zeros((len(height),len(species))) # output mr for all species
+mr_grid = np.logspace(-6,0,100) # search grid for mr
+# loop over altitude
+for i in range(0, len(height)):
+    sum_delta_f_G = np.zeros((len(mr_grid), len(mr_grid), len(mr_grid)))
+    for j in range(0, len(mr_grid)):
+        for k in range(0, len(mr_grid)):
+            for m in range(0, len(mr_grid)):
+                if 1-(mr_grid[j] + mr_grid[k] + mr_grid[m]) >= 0: #+ mr_grid[m]
+                    mr = [mr_grid[j], mr_grid[k], mr_grid[m], 1-(mr_grid[j] + mr_grid[k] + mr_grid[m])] # mr_grid[m]
+                    sum_delta_f_G[j,k,m] = sum_compute_delta_f_G_m(T[i], P[i], mr, delta_f_H_m[i,:], delta_f_S_m[i,:])
+    #print("min G:", sum_delta_f_G)
+    mr_eq[i,0] =  mr_grid[np.where(sum_delta_f_G == np.min(sum_delta_f_G))[0]]
+    mr_eq[i,1] =  mr_grid[np.where(sum_delta_f_G == np.min(sum_delta_f_G))[1]]
+    mr_eq[i,2] =  mr_grid[np.where(sum_delta_f_G == np.min(sum_delta_f_G))[2]]
+    mr_eq[i,-1] = 1 - np.sum(mr_eq[i,0:-1])       
 print("mr eq:", mr_eq[0,:])
 
 # plot mr profiles for main species at chemcial equilibrium
@@ -252,4 +276,5 @@ for i in range(0,len(species_all)):
 ax.set_xlabel("Mixing ratio")
 ax.set_ylabel('Height (km)')
 plt.legend()
+plt.savefig('Equilibrium.png')
 plt.show()
