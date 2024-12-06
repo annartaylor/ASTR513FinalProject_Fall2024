@@ -147,13 +147,13 @@ for i in range(0, len(height)):
     mr_eq[i,-1] = 1 - np.sum(mr_eq[i,0:-1])       
 print("mr eq:", mr_eq[0,:])
 
+colors = ['deeppink', 'orange', 'purple', 'blue']
 # plot mr profiles for main species at chemcial equilibrium
 fig, ax = plt.subplots()
 ax.set_xscale('log')
 for i in range(0,len(species_all)):
-    ax.plot(mr_eq[:,i], height, label = species_data['species'][species_all[i]-1]['name'])
+    ax.plot(mr_eq[:,i], height, color = colors[i], linewidth = 2,  label = species_data['species'][species_all[i]-1]['name'])
 ax.set_xlabel("Mixing ratio")
 ax.set_ylabel('Height (km)')
 plt.legend()
-plt.savefig('Equilibrium.png')
 plt.show()
